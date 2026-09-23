@@ -1,0 +1,66 @@
+﻿# Build artifacts
+build/
+cmake-build-*/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.lib
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+CTestTestfile.cmake
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.eggs/
+.env
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Large model files
+models/references/*.onnx
+models/references/*.pt
+models/references/*.pth
+models/references/*.pb
+
+# Large binary weight files (keep small test fixtures)
+*.bin
+!core/tests/fixtures/**/*.bin
+!tests/**/*.bin
+
+# Evaluation reports (generated)
+evaluation/reports/*
+!evaluation/reports/.gitkeep
+
+# Generated files
+generated/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+.env
+.env.*

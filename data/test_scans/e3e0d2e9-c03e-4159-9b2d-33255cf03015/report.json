@@ -1,0 +1,30 @@
+{
+  "scan_id": "e3e0d2e9-c03e-4159-9b2d-33255cf03015",
+  "model_profile": {
+    "architecture": "unknown",
+    "format": "onnx",
+    "total_tensors": 0,
+    "total_params": 0,
+    "sha256": "28695dee12d84bea45f664b0cfb9e896f45af935f3e472b7af8f008ca00a2598",
+    "file_size_bytes": 194,
+    "opset_version": 17
+  },
+  "tensor_profiles": [],
+  "evidence_scores": [
+    {
+      "family": "stub",
+      "score": 0.0,
+      "confidence": 0.0,
+      "description": "C++ scanner not available \u2014 stub report generated",
+      "details": null
+    }
+  ],
+  "flagged_layers": [],
+  "overall_score": 0.0,
+  "verdict": "clean",
+  "verdict_confidence": 0.0,
+  "summary": "Scan completed in development mode. C++ scanner binary was not found. Tensor extraction succeeded; statistical analysis requires the C++ scanner.",
+  "generated_at": "2026-09-17T06:46:38.188829+00:00",
+  "scanner_version": "stub-dev",
+  "raw_scanner_output": null
+}
