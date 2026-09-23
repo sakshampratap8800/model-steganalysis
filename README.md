@@ -2,6 +2,9 @@
 
 A research-grade platform for detecting steganographic payloads and backdoors embedded in neural network weights.
 
+## Aim
+The primary aim of this project is to provide a robust, fast, and highly extensible framework to detect malicious modifications—such as backdoors or hidden payloads—within deep learning models. By combining high-speed native C++ analysis with machine learning heuristics, it helps researchers and engineers audit third-party models before deployment, ensuring AI supply chain security.
+
 ## Overview
 This platform implements multiple orthogonal detection branches to catch sophisticated attacks (including FMLA/HMLA, X-LSB-Fill, NPS, and TransTroj):
 1. **IEEE-754 Bit Analysis:** Exposes LSB modifications via mantissa entropy.
