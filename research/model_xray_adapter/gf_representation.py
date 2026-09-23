@@ -48,11 +48,12 @@ def weights_to_gf_image(weights_flat: np.ndarray) -> np.ndarray:
         2D uint8 numpy array (square grayscale image), padded with zeros
         to reach the nearest perfect square byte count.
     """
-    if weights_flat.dtype != np.float32:
-        weights_flat = weights_flat.astype(np.float32)
+    # Enforce little-endian float32 ('<f4') to ensure reproducible chunk ordering
+    # 4-byte chunk: [LSB(Mantissa), Mid(Mantissa), High(Mantissa)+Low(Exp), Sign+High(Exp)]
+    weights_le = weights_flat.astype('<f4')
 
-    # View float32 data as uint8 — 4 bytes per float, no copy
-    byte_array = weights_flat.view(np.uint8)
+    # View float32 data as uint8 — 4 bytes per float
+    byte_array = weights_le.view(np.uint8)
     n_bytes = len(byte_array)
 
     # Compute side length of smallest square that holds all bytes
@@ -166,11 +167,10 @@ def gf_image_to_byte_planes(weights_flat: np.ndarray) -> List[np.ndarray]:
 
     Returns: List of 4 square uint8 arrays (one per byte plane).
     """
-    if weights_flat.dtype != np.float32:
-        weights_flat = weights_flat.astype(np.float32)
+    weights_le = weights_flat.astype('<f4')
 
-    byte_view = weights_flat.view(np.uint8)
-    n = len(weights_flat)
+    byte_view = weights_le.view(np.uint8)
+    n = len(weights_le)
 
     planes = []
     for plane_idx in range(4):
@@ -199,10 +199,8 @@ def compute_lsb_entropy(weights_flat: np.ndarray, n_bits: int = 4) -> float:
     Returns:
         Mean binary entropy in [0.0, 1.0].
     """
-    if weights_flat.dtype != np.float32:
-        weights_flat = weights_flat.astype(np.float32)
-
-    uint_view = weights_flat.view(np.uint32)
+    # Convert to little-endian uint32 to ensure bit shifts operate on consistent representation
+    uint_view = weights_flat.astype('<f4').view('<u4')
     n = len(uint_view)
     if n == 0:
         return 0.0

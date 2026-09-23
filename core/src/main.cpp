@@ -233,10 +233,19 @@ int main(int argc, char* argv[]) {
     report["profile"]         = serialise_profile(profile);
     
     json final_verdict;
+    final_verdict["calibrated_probability"] = global_risk.calibrated_probability;
     final_verdict["risk_score"] = global_risk.risk_score;
     final_verdict["verdict"] = (global_risk.verdict == stega::Verdict::CLEAN) ? "CLEAN" : 
                                (global_risk.verdict == stega::Verdict::SUSPICIOUS) ? "SUSPICIOUS" : "MALICIOUS";
     final_verdict["triggers"] = global_risk.triggers;
+    
+    json ev_vector;
+    ev_vector["bit_entropy_deviation"] = global_risk.evidence_vector.bit_entropy_deviation;
+    ev_vector["structural_deviation"] = global_risk.evidence_vector.structural_deviation;
+    ev_vector["statistical_deviation"] = global_risk.evidence_vector.statistical_deviation;
+    ev_vector["signature_deviation"] = global_risk.evidence_vector.signature_deviation;
+    final_verdict["normalized_evidence_vector"] = ev_vector;
+    
     report["global_risk"]     = final_verdict;
     
     report["tensor_stats"]    = tensor_stats_arr;

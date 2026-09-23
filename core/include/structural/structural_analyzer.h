@@ -1,8 +1,8 @@
 #pragma once
-// structural_analyzer.h — Topology and structural weight analysis
+// structural_analyzer.h - Project-Proposed Structural Evidence
 //
-// Identifies anomalies such as Neuron Permutation Steganography (NPS),
-// which preserves the parameter statistics perfectly (multiset invariant)
+// Identifies structural anomalies in weight topologies using heuristics
+// like Gini coefficients and Spearman rank correlation.
 // but changes the order/topology of the weights.
 
 #include "common/tensor.h"

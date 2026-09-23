@@ -1,9 +1,10 @@
 """
 Implicit Features Detector (Cao et al. reimplementation)
-Attribution: Cao et al., "Implicit Features for DNN Steganalysis"
+Attribution: Cao et al., "Steganalysis of neural networks using implicit features"
 
-Extracts features from the raw weight values using a fixed-shape feature matrix,
-then classifies them using a 1D CNN branch (model-06-long).
+Extracts behavioral features from a neural network by feeding a fixed sequence 
+of N probe images and collecting the g-dimensional softmax output probabilities,
+then classifies this (N x g) implicit feature matrix using a 1D CNN branch (model-06-long).
 """
 
 import math
@@ -19,29 +20,67 @@ import torch.nn.functional as F
 # Feature Extraction
 # ---------------------------------------------------------------------------
 
-def extract_implicit_features(
-    weights: np.ndarray,
-    target_N: int = 1000,
-    target_g: int = 10,
-) -> np.ndarray:
+@torch.no_grad()
+def evaluate_implicit_features(
+    candidate_model: nn.Module,
+    probe_images: torch.Tensor,
+    steganalysis_model: nn.Module,
+    is_classification_model: bool = True,
+    device: str = "cpu"
+) -> dict:
     """
-    Extract an (N x g) implicit feature matrix from a flat weight array.
+    Paper 3 Reproduction: Stegalaysis Using Implicit Features
     
-    1. Truncate or zero-pad weights to length N*g
-    2. Reshape to (N, g)
-    3. For each group of size g, compute normalized deviations or raw values
-       (Here we return the reshaped raw values as baseline features, as
-       the 1D CNN will learn the behavioral implicit patterns).
+    Pipeline:
+    candidate_model -> classification_model? -> yes -> fixed probe images -> softmax -> (N x g) matrix -> model-06-long.
+    
+    Args:
+        candidate_model: The target classification network to evaluate.
+        probe_images: Tensor of shape (N, C, H, W) containing a deterministic, versioned, category-balanced fixed probe set.
+        steganalysis_model: The trained model-06-long instance.
+        is_classification_model: Boolean check. If False, returns 'not applicable'.
+    
+    Returns:
+        Dict containing execution metadata and the final stego probability score.
     """
-    weights = weights.flatten()
-    total_len = target_N * target_g
-    
-    if len(weights) >= total_len:
-        feat = weights[:total_len]
-    else:
-        feat = np.pad(weights, (0, total_len - len(weights)), mode='constant')
+    if not is_classification_model:
+        return {
+            "supported": False,
+            "task_type": "unknown",
+            "message": "not applicable"
+        }
         
-    return feat.reshape(target_N, target_g).astype(np.float32)
+    candidate_model = candidate_model.to(device)
+    steganalysis_model = steganalysis_model.to(device)
+    probe_images = probe_images.to(device)
+    
+    candidate_model.eval()
+    steganalysis_model.eval()
+    
+    N = probe_images.shape[0]
+    
+    # 1. Feed fixed probe sequence to get output probabilities
+    logits = candidate_model(probe_images)
+    probs = F.softmax(logits, dim=1)  # Shape: (N, g)
+    g = probs.shape[1]
+    
+    # 2. Preprocessing for model-06-long
+    # Paper uses 1000 x 10 for the 10-class reproduction.
+    # PyTorch 1D CNN expects input shape (Batch, Channels, Length)
+    # So we treat classes 'g' as channels and 'N' as length: shape (1, g, N)
+    implicit_matrix = probs.unsqueeze(0).transpose(1, 2)
+    
+    # 3. Model-06-long steganalysis classification
+    stego_prob = steganalysis_model(implicit_matrix).item()
+    
+    return {
+        "supported": True,
+        "task_type": "image_classification",
+        "N": N,
+        "num_classes": g,
+        "feature_shape": [N, g],
+        "stego_probability": stego_prob
+    }
 
 
 # ---------------------------------------------------------------------------

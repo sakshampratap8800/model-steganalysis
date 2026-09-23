@@ -1,10 +1,10 @@
 #pragma once
-// ieee754_analyzer.h — IEEE-754 bit-level analysis of float32 weight tensors.
+// ieee754_analyzer.h - Baseline Bit-Level Entropy analysis of float32 weight tensors.
 //
 // Computes per-tensor bit-plane statistics, low-order bit entropy,
-// sign/exponent/mantissa field distributions, and 0/1 imbalance scores.
-// These are the primary features for detecting LSB steganography attacks
-// (FMLA, HMLA, HBLA from Dubin; X-LSB-Fill from Gilkarov & Dubin).
+// NOTE: This serves purely as a Baseline Bit-Level Entropy feature.
+// While it detects LSB replacement attacks, it is strictly distinct from
+// the GF Few-Shot mechanism proposed in Model X-Ray.
 
 #pragma once
 #include "common/tensor.h"
