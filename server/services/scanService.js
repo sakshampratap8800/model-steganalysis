@@ -161,7 +161,7 @@ async function createScan(filename, fileBuffer) {
   const sha256 = LocalStorage.sha256(fileBuffer);
   const modelPath = storage.saveUpload(scanId, filename, fileBuffer);
 
-  db.createScan({
+  await db.createScan({
     id: scanId,
     filename: path.basename(filename),
     sha256,
@@ -181,19 +181,19 @@ async function createScan(filename, fileBuffer) {
 
 async function runScanBackground(scanId, modelPath) {
   const scanDir = storage.getScanDir(scanId);
-  db.updateStatus(scanId, 'running');
+  await db.updateStatus(scanId, 'running');
 
   try {
     const report = await runScan(scanId, modelPath, scanDir);
-    db.saveReport(scanId, report);
+    await db.saveReport(scanId, report);
     storage.cleanupModel(scanId, path.basename(modelPath));
   } catch (err) {
-    db.updateStatus(scanId, 'failed', err.message);
+    await db.updateStatus(scanId, 'failed', err.message);
   }
 }
 
-function getScan(scanId) {
-  const row = db.getScan(scanId);
+async function getScan(scanId) {
+  const row = await db.getScan(scanId);
   if (!row) return null;
 
   return {
@@ -211,8 +211,8 @@ function getScan(scanId) {
   };
 }
 
-function getScanStatus(scanId) {
-  const row = db.getScan(scanId);
+async function getScanStatus(scanId) {
+  const row = await db.getScan(scanId);
   if (!row) return null;
 
   const { progress_pct, message } = statusToProgress(row.status);
@@ -226,15 +226,15 @@ function getScanStatus(scanId) {
   };
 }
 
-function getScanReport(scanId) {
-  const row = db.getScan(scanId);
+async function getScanReport(scanId) {
+  const row = await db.getScan(scanId);
   if (!row) return null;
   if (row.status !== 'complete' || !row.report_json) return null;
   return buildScanReport(scanId, row.filename, row.report_json);
 }
 
-function listScans(limit = 50, skip = 0) {
-  const { items, total } = db.listScans(limit, skip);
+async function listScans(limit = 50, skip = 0) {
+  const { items, total } = await db.listScans(limit, skip);
   return {
     items: items.map((row) => ({
       id: row.id,
