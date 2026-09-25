@@ -28,6 +28,16 @@ target_include_directories(scanner_cli PRIVATE
     ${nlohmann_json_SOURCE_DIR}/include
 )
 
+# ── Executable: onnx_extract ───────────────────────────────────────────────
+# Standalone ONNX → meta.json + weights.bin extractor.
+# Called by the Node.js server via child_process.spawn — no Python required.
+add_executable(onnx_extract src/onnx_extract/onnx_extract.cpp)
+target_compile_features(onnx_extract PRIVATE cxx_std_17)
+target_include_directories(onnx_extract PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${nlohmann_json_SOURCE_DIR}/include
+)
+
 # ── Tests ──────────────────────────────────────────────────────────────────
 add_executable(core_tests
     tests/test_profiler.cpp
